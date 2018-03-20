@@ -25,16 +25,16 @@
 
 
 ```js
-const string username = "username";
-const string password = "password";
-const string from = "5000...";
-const string to = "09123456789";
-const string text = "تست وب سرویس ملی پیامک";
-const bool isFlash = false;
-SoapClient soapClient = new SoapClient(username, password);
-soapClient.SendSimpleSMS2(to, from, text, isFlash);
+val username = "username"
+val password = "password"
+val from = "5000..."
+val to = "09123456789"
+val text = "تست وب سرویس ملی پیامک"
+val isFlash = false
+val soapClient = SoapClient(username, password)
+soapClient.SendSimpleSMS2(to, from, text, isFlash)
 //یا برای ارسال به مجموعه ای از مخاطبین
-soapClient.SendSimpleSMS(string[] { to }, from, text, isFlash);
+soapClient.SendSimpleSMS(arrayOf(to), from, text, isFlash)
 ```
 
 <div dir='rtl'>
@@ -44,8 +44,8 @@ soapClient.SendSimpleSMS(string[] { to }, from, text, isFlash);
 
 ```js
 // وب سرویس پیامک
-RestClient restClient = new RestClient(username, password);
-SoapClient soapClient = new SoapClient(username, password);
+val restClient = new RestClient(username, password);
+val soapClient = new SoapClient(username, password);
 ```
 
 <div dir='rtl'>
@@ -126,8 +126,8 @@ dependencies {
 </div>
 
 ```js
-StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-StrictMode.setThreadPolicy(policy);
+val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+StrictMode.setThreadPolicy(policy)
 ```
 
 <div dir='rtl'>
@@ -139,8 +139,8 @@ StrictMode.setThreadPolicy(policy);
 #### ارسال
 
 ```js
-restClient.Send(to, from, text, isFlash);
-soapClient.SendSimpleSMS(new string[] { to }, from, text, isFlash);
+restClient.Send(to, from, text, isFlash)
+soapClient.SendSimpleSMS(arrayOf(to), from, text, isFlash)
 ```
 <div dir='rtl'>
   در آرگومان سوم روش soap میتوانید از هر تعداد مخاطب به عنوان آرایه استفاده کنید
@@ -150,7 +150,7 @@ soapClient.SendSimpleSMS(new string[] { to }, from, text, isFlash);
 ```js
 restClient.GetDelivery(recId);
 soapClient.GetDelivery(recId);
-soapClient.GetDeliveries(recIds[]);
+soapClient.GetDeliveries(arrayOf(recIds));
 ```
 
 #### لیست پیامک ها
@@ -189,7 +189,7 @@ soapClient.GetInboxCount(isRead);
 
 #### ارسال پیامک پیشرفته
 ```js
-soapClient.SendSms(to[], from, text, isflash, udh, recId[], status[]);
+soapClient.SendSms(arrayOf(to), from, text, isflash, udh, arrayOf(recId), arrayOf(status));
 ```
 
 #### مشاهده مشخصات پیام
@@ -211,7 +211,7 @@ soapClient.AddSchedule(to, from, text, isflash, scheduleDateTime, period);
 
 #### ارسال زماندار متناظر
 ```js
-soapClient.AddMultipleSchedule(to[], from, text[], isflash, scheduleDateTime[], period);
+soapClient.AddMultipleSchedule(arrayOf(to), from, arrayOf(text), isflash, arrayOf(scheduleDateTime), period);
 ```
 
 
@@ -264,7 +264,7 @@ soapClient.AddBranch(branchName, owner);
 
 #### اضافه کردن شماره به بانک
 ```js
-soapClient.AddNumber(branchId, mobileNumbers[]);
+soapClient.AddNumber(branchId, arrayOf(mobileNumbers));
 ```
 
 #### حذف یک بانک
@@ -311,7 +311,7 @@ soapClient.RemoveBulk(bulkId);
 
 #### ارسال متناظر
 ```js
-soapClient.SendMultipleSMS(to[], from, text[], isflash, udh, recId[], status);
+soapClient.SendMultipleSMS(arrayOf(to), from, arrayOf(text), isflash, udh, arrayOf(recId), status);
 ```
 
 #### نمایش دهنده وضعیت گزارش گیری
