@@ -2,12 +2,14 @@ class RestClient(private val UserName: String, private val Password: String) {
 
     private val endpoint = "https://rest.payamak-panel.com/api/SendSMS/"
     private val sendOp = "SendSMS"
+    private val sendByBaseNumberOp = "BaseServiceNumber";
 
     private val getDeliveryOp = "GetDeliveries2"
     private val getMessagesOp = "GetMessages"
     private val getCreditOp = "GetCredit"
     private val getBasePriceOp = "GetBasePrice"
     private val getUserNumbersOp = "GetUserNumbers"
+
 
     @Throws(IOException::class)
     fun Send(to: String, from: String, message: String, isflash: Boolean): String {
@@ -21,6 +23,47 @@ class RestClient(private val UserName: String, private val Password: String) {
         values.put("isFlash", isflash.toString())
 
         val url = URL(endpoint + sendOp)
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "POST"
+
+        val result = StringBuilder()
+        var line: String
+
+        try {
+            conn.doOutput = true
+            conn.setChunkedStreamingMode(0)
+
+            //consider encoding
+            val writer = OutputStreamWriter(conn.outputStream)
+            writer.write(getPostParamString(values))
+            writer.flush()
+            writer.close()
+
+            //you can deserialize response as it is json
+            val r = BufferedReader(InputStreamReader(conn.inputStream))
+            line = r.readLine()
+            while ( line != null) {
+                result.append(line).append('\n')
+            }
+
+        } finally {
+            conn.disconnect()
+        }
+
+        return result.toString()
+    }
+
+    @Throws(IOException::class)
+    fun SendByBaseNumber(text: String, to: String, bodyId: Long): String {
+
+        val values = Hashtable<String, String>()
+        values.put("username", UserName)
+        values.put("password", Password)
+        values.put("text", text)
+        values.put("to", to)
+        values.put("bodyId", bodyId.toString())
+
+        val url = URL(endpoint + sendByBaseNumberOp)
         val conn = url.openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
 
