@@ -990,6 +990,63 @@ class SoapClient//constructor
         return response!!.getProperty(0)
     }
 
+    fun SendBulkSpeechText(title: String, body: String, receivers: String, DateToSend: String, repeatCount: Int): Any {
+
+        val METHOD_NAME = "SendBulkSpeechText"
+        val request = SoapObject(NAMESPACE, METHOD_NAME)
+
+        //Use this to add parameters
+        request.addProperty("username", Username)
+        request.addProperty("password", Password)
+        request.addProperty("title", title)
+        request.addProperty("body", bodyId)
+        request.addProperty("receivers", receivers)
+        request.addProperty("DateToSend", DateToSend)
+        request.addProperty("repeatCount", repeatCount)
+
+        val SOAP_ACTION = NAMESPACE + METHOD_NAME
+        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
+
+        return response!!.getProperty(0)
+    }
+
+    fun SendBulkVoiceSMS(title: String, voiceFileId: Int, receivers: String, DateToSend: String, repeatCount: Int): Any {
+
+        val METHOD_NAME = "SendBulkVoiceSMS"
+        val request = SoapObject(NAMESPACE, METHOD_NAME)
+
+        //Use this to add parameters
+        request.addProperty("username", Username)
+        request.addProperty("password", Password)
+        request.addProperty("title", title)
+        request.addProperty("voiceFileId", voiceFileId)
+        request.addProperty("receivers", receivers)
+        request.addProperty("DateToSend", DateToSend)
+        request.addProperty("repeatCount", repeatCount)
+
+        val SOAP_ACTION = NAMESPACE + METHOD_NAME
+        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
+
+        return response!!.getProperty(0)
+    }
+
+    fun UploadVoiceFile(title: String, base64StringFile: String): Any {
+
+        val METHOD_NAME = "UploadVoiceFile"
+        val request = SoapObject(NAMESPACE, METHOD_NAME)
+
+        //Use this to add parameters
+        request.addProperty("username", Username)
+        request.addProperty("password", Password)
+        request.addProperty("title", title)
+        request.addProperty("base64StringFile", base64StringFile)
+        
+        val SOAP_ACTION = NAMESPACE + METHOD_NAME
+        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
+
+        return response!!.getProperty(0)
+    }
+
     fun SendSMSWithSpeechText(smsBody: String, speechBody: String, from: String, to: String): Any {
 
         val METHOD_NAME = "SendSMSWithSpeechText"
@@ -1029,6 +1086,13 @@ class SoapClient//constructor
 
         return response!!.getProperty(0)
     }
+
+
+
+
+
+
+
 
     companion object {
 
