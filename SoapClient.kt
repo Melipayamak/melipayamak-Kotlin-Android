@@ -999,7 +999,7 @@ class SoapClient//constructor
         request.addProperty("username", Username)
         request.addProperty("password", Password)
         request.addProperty("title", title)
-        request.addProperty("body", bodyId)
+        request.addProperty("body", body)
         request.addProperty("receivers", receivers)
         request.addProperty("DateToSend", DateToSend)
         request.addProperty("repeatCount", repeatCount)
