@@ -21,31 +21,50 @@ import java.sql.Date
 import java.util.Collections
 
 
-class SoapClient//constructor
-(private val Username: String, private val Password: String) {
+class SoapClientAsync//constructor
+(private val Username: String, private val Password: String) : AsyncTask<MPTaskParams, Int, SoapObject>() {
 
+    override fun doInBackground(vararg params: MPTaskParams): SoapObject? {
+        // Create envelope
+        //Declare the version of the SOAP request
+        val envelope = SoapSerializationEnvelope(SoapEnvelope.VER11)
+        envelope.dotNet = true
 
-    protected fun getXMLResult(url: String, soapAction: String, request: SoapObject): SoapObject? {
+        // Set output SOAP object
+        envelope.setOutputSoapObject(params[0].request)
+
+        // Create HTTP call object
+        val androidHttpTransport = HttpTransportSE(params[0].url)
+        androidHttpTransport.debug = true
+
+        val response: SoapObject?
+
+        System.setProperty("http.keepAlive", "false")
+
+        // Invoke web service
         try {
-            return getServiceResult(url, soapAction, request)
-        } catch (e: SoapFault) {
-            e.printStackTrace()
-            return null
-        } catch (e: HttpResponseException) {
-            e.printStackTrace()
-            return null
-        } catch (e: XmlPullParserException) {
-            e.printStackTrace()
-            return null
+            androidHttpTransport.call(params[0].soapAction, envelope)
         } catch (e: IOException) {
             e.printStackTrace()
-            return null
+        } catch (e: XmlPullParserException) {
+            e.printStackTrace()
         }
 
+        // Get the response
+        response = envelope.bodyIn as SoapObject
+        if (response != null)
+            Log.d(TAG, response.toString())
+
+        return response
+    }
+
+
+    protected fun getXMLResult(url: String, soapAction: String, request: SoapObject) {
+        this.execute(*arrayOf(MPTaskParams(url, soapAction, request)))
     }
 
     //send webservice
-    fun SendSimpleSMS2(to: String, from: String, text: String, isFlash: Boolean): Any? {
+    fun SendSimpleSMS2(to: String, from: String, text: String, isFlash: Boolean) {
 
         val METHOD_NAME = "SendSimpleSMS2"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -59,12 +78,10 @@ class SoapClient//constructor
         request.addProperty("isflash", isFlash.toString())
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun SendByBaseNumber(text: Array<String>, to: String, bodyId: Long): Any? {
+    fun SendByBaseNumber(text: Array<String>, to: String, bodyId: Long) {
 
         val METHOD_NAME = "SendByBaseNumber"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -78,12 +95,10 @@ class SoapClient//constructor
         request.addProperty("bodyId", bodyId.toString())
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun SendByBaseNumber2(text: String, to: String, bodyId: Long): Any? {
+    fun SendByBaseNumber2(text: String, to: String, bodyId: Long) {
 
         val METHOD_NAME = "SendByBaseNumber2"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -96,12 +111,10 @@ class SoapClient//constructor
         request.addProperty("bodyId", bodyId.toString())
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun GetCredit(): Any? {
+    fun GetCredit() {
 
         val METHOD_NAME = "GetCredit"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -111,12 +124,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun GetDeliveries(recIds: LongArray): Any? {
+    fun GetDeliveries(recIds: LongArray) {
 
         val METHOD_NAME = "GetDeliveries"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -128,12 +139,10 @@ class SoapClient//constructor
         request.addProperty("recIds", _recIds)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun GetSmsPrice(irancellCount: Int, mtnCount: Int, from: String, text: String): Any? {
+    fun GetSmsPrice(irancellCount: Int, mtnCount: Int, from: String, text: String) {
 
         val METHOD_NAME = "GetSmsPrice"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -147,12 +156,10 @@ class SoapClient//constructor
         request.addProperty("text", text)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun SendSimpleSMS(to: Array<String>, from: String, text: String, isFlash: Boolean): Any? {
+    fun SendSimpleSMS(to: Array<String>, from: String, text: String, isFlash: Boolean) {
 
         val METHOD_NAME = "SendSimpleSMS"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -167,12 +174,10 @@ class SoapClient//constructor
         request.addProperty("isflash", isFlash.toString())
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun SendSms(to: String, from: String, text: String, isFlash: Boolean, udh: String, recIds: LongArray, status: Base64): Any? {
+    fun SendSms(to: String, from: String, text: String, isFlash: Boolean, udh: String, recIds: LongArray, status: Base64) {
 
         val METHOD_NAME = "SendSms"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -190,12 +195,10 @@ class SoapClient//constructor
         request.addProperty("status", status)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
-    fun getMessages(location: Int, from: String, index: Int, count: Int): Any? {
+    fun getMessages(location: Int, from: String, index: Int, count: Int) {
 
         val METHOD_NAME = "getMessages"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -209,14 +212,12 @@ class SoapClient//constructor
         request.addProperty("count", count)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SEND_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SEND_URL, SOAP_ACTION, request)
     }
 
 
     //receive webservice
-    fun GetMessagesReceptions(msgId: Int, fromRows: Int): Any? {
+    fun GetMessagesReceptions(msgId: Int, fromRows: Int) {
 
         val METHOD_NAME = "GetMessagesReceptions"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -228,12 +229,10 @@ class SoapClient//constructor
         request.addProperty("fromRows", fromRows)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
     }
 
-    fun RemoveMessages2(location: Int, msgIds: String): Any? {
+    fun RemoveMessages2(location: Int, msgIds: String) {
 
         val METHOD_NAME = "RemoveMessages2"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -245,12 +244,10 @@ class SoapClient//constructor
         request.addProperty("msgIds", msgIds)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
     }
 
-    fun GetMessagesByDate(location: Int, from: String, index: Int, count: Int, dateFrom: Date, dateTo: Date): Any? {
+    fun GetMessagesByDate(location: Int, from: String, index: Int, count: Int, dateFrom: Date, dateTo: Date) {
 
         val METHOD_NAME = "GetMessagesByDate"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -266,12 +263,10 @@ class SoapClient//constructor
         request.addProperty("dateTo", dateTo)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
     }
 
-    fun GetUsersMessagesByDate(location: Int, from: String, index: Int, count: Int, dateFrom: Date, dateTo: Date): Any? {
+    fun GetUsersMessagesByDate(location: Int, from: String, index: Int, count: Int, dateFrom: Date, dateTo: Date) {
 
         val METHOD_NAME = "GetUsersMessagesByDate"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -287,14 +282,12 @@ class SoapClient//constructor
         request.addProperty("dateTo", dateTo)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request)
     }
 
 
     //users webservice
-    fun GetUserNumbers(): Any? {
+    fun GetUserNumbers() {
 
         val METHOD_NAME = "GetUserNumbers"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -304,12 +297,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetUserTransactions(targetUsername: String, creditType: String, keyword: String, dateFrom: Date, dateTo: Date): Any? {
+    fun GetUserTransactions(targetUsername: String, creditType: String, keyword: String, dateFrom: Date, dateTo: Date) {
 
         val METHOD_NAME = "GetUserTransactions"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -324,12 +315,10 @@ class SoapClient//constructor
         request.addProperty("dateTo", dateTo)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetUsers(): Any? {
+    fun GetUsers() {
 
         val METHOD_NAME = "GetUsers"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -339,12 +328,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun HasFilter(text: String): Any? {
+    fun HasFilter(text: String) {
 
         val METHOD_NAME = "HasFilter"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -355,12 +342,10 @@ class SoapClient//constructor
         request.addProperty("text", text)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun RemoveUser(targetUsername: String): Any? {
+    fun RemoveUser(targetUsername: String) {
 
         val METHOD_NAME = "RemoveUser"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -371,12 +356,10 @@ class SoapClient//constructor
         request.addProperty("targetUsername", targetUsername)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetProvinces(): Any? {
+    fun GetProvinces() {
 
         val METHOD_NAME = "GetProvinces"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -386,12 +369,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetCities(provinceId: Int): Any? {
+    fun GetCities(provinceId: Int) {
 
         val METHOD_NAME = "GetCities"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -402,12 +383,10 @@ class SoapClient//constructor
         request.addProperty("provinceId", provinceId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetExpireDate(): Any? {
+    fun GetExpireDate() {
 
         val METHOD_NAME = "GetExpireDate"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -417,12 +396,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun AddPayment(name: String, family: String, bankName: String, code: String, amount: Double, cardNumber: String): Any? {
+    fun AddPayment(name: String, family: String, bankName: String, code: String, amount: Double, cardNumber: String) {
 
         val METHOD_NAME = "AddPayment"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -438,12 +415,10 @@ class SoapClient//constructor
         request.addProperty("cardNumber", cardNumber)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun AuthenticateUser(): Any? {
+    fun AuthenticateUser() {
 
         val METHOD_NAME = "AuthenticateUser"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -453,12 +428,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun ChangeUserCredit(amount: Double, description: String, targetUsername: String, GetTax: Boolean): Any? {
+    fun ChangeUserCredit(amount: Double, description: String, targetUsername: String, GetTax: Boolean) {
 
         val METHOD_NAME = "ChangeUserCredit"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -472,12 +445,10 @@ class SoapClient//constructor
         request.addProperty("GetTax", GetTax.toString())
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun AuthenticateUser(mobileNumber: String, emailAddress: String, targetUsername: String): Any? {
+    fun AuthenticateUser(mobileNumber: String, emailAddress: String, targetUsername: String) {
 
         val METHOD_NAME = "AuthenticateUser"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -490,12 +461,10 @@ class SoapClient//constructor
         request.addProperty("targetUsername", targetUsername)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetUserBasePrice(targetUsername: String): Any? {
+    fun GetUserBasePrice(targetUsername: String) {
 
         val METHOD_NAME = "GetUserBasePrice"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -506,12 +475,10 @@ class SoapClient//constructor
         request.addProperty("targetUsername", targetUsername)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetUserCredit(targetUsername: String): Any? {
+    fun GetUserCredit(targetUsername: String) {
 
         val METHOD_NAME = "GetUserCredit"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -522,12 +489,10 @@ class SoapClient//constructor
         request.addProperty("targetUsername", targetUsername)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetUserDetails(targetUsername: String): Any? {
+    fun GetUserDetails(targetUsername: String) {
 
         val METHOD_NAME = "GetUserDetails"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -538,12 +503,10 @@ class SoapClient//constructor
         request.addProperty("targetUsername", targetUsername)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
-    fun GetUserDetails(targetUsername: String, creditType: String, dateFrom: Date, dateTo: Date, keyword: String): Any? {
+    fun GetUserDetails(targetUsername: String, creditType: String, dateFrom: Date, dateTo: Date, keyword: String) {
 
         val METHOD_NAME = "GetUserDetails"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -559,14 +522,12 @@ class SoapClient//constructor
 
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(USERS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(USERS_URL, SOAP_ACTION, request)
     }
 
 
     //contacts webservice
-    fun AddGroup(groupName: String, Descriptions: String, showToChilds: Boolean): Any? {
+    fun AddGroup(groupName: String, Descriptions: String, showToChilds: Boolean) {
 
         val METHOD_NAME = "AddGroup"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -579,12 +540,10 @@ class SoapClient//constructor
         request.addProperty("showToChilds", showToChilds.toString())
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
     }
 
-    fun CheckMobileExistInContact(mobileNumber: String): Any? {
+    fun CheckMobileExistInContact(mobileNumber: String) {
 
         val METHOD_NAME = "CheckMobileExistInContact"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -595,12 +554,10 @@ class SoapClient//constructor
         request.addProperty("mobileNumber", mobileNumber)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
     }
 
-    fun GetContacts(groupId: Int, keyword: String, from: Int, count: Int): Any? {
+    fun GetContacts(groupId: Int, keyword: String, from: Int, count: Int) {
 
         val METHOD_NAME = "GetContacts"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -614,12 +571,10 @@ class SoapClient//constructor
         request.addProperty("count", count)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
     }
 
-    fun GetGroups(): Any? {
+    fun GetGroups() {
 
         val METHOD_NAME = "GetGroups"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -629,12 +584,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
     }
 
-    fun RemoveContact(mobilenumber: String): Any? {
+    fun RemoveContact(mobilenumber: String) {
 
         val METHOD_NAME = "RemoveContact"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -645,12 +598,10 @@ class SoapClient//constructor
         request.addProperty("mobilenumber", mobilenumber)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
     }
 
-    fun GetContactEvents(contactId: Int): Any? {
+    fun GetContactEvents(contactId: Int) {
 
         val METHOD_NAME = "GetContactEvents"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -661,14 +612,12 @@ class SoapClient//constructor
         request.addProperty("contactId", contactId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request)
     }
 
 
     //actions webservice
-    fun GetBranchs(owner: Int): Any? {
+    fun GetBranchs(owner: Int) {
 
         val METHOD_NAME = "GetBranchs"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -679,12 +628,10 @@ class SoapClient//constructor
         request.addProperty("owner", owner)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun AddBranch(owner: Int, branchName: String): Any? {
+    fun AddBranch(owner: Int, branchName: String) {
 
         val METHOD_NAME = "AddBranch"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -696,12 +643,10 @@ class SoapClient//constructor
         request.addProperty("branchName", branchName)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun AddNumber(branchId: Int, mobileNumbers: Array<String>): Any? {
+    fun AddNumber(branchId: Int, mobileNumbers: Array<String>) {
 
         val METHOD_NAME = "AddNumber"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -714,12 +659,10 @@ class SoapClient//constructor
         request.addProperty("mobileNumbers", _numbers)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun RemoveBranch(branchId: Int): Any? {
+    fun RemoveBranch(branchId: Int) {
 
         val METHOD_NAME = "RemoveBranch"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -730,13 +673,11 @@ class SoapClient//constructor
         request.addProperty("branchId", branchId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
     fun AddBulk(from: String, branch: Int, bulkType: Byte?, title: String, message: String,
-                rangeFrom: String, rangeTo: String, DateToSend: Date, requestCount: Int, rowFrom: Int): Any? {
+                rangeFrom: String, rangeTo: String, DateToSend: Date, requestCount: Int, rowFrom: Int) {
 
         val METHOD_NAME = "AddBulk"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -756,12 +697,10 @@ class SoapClient//constructor
         request.addProperty("rowFrom", rowFrom)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun GetBulkCount(branch: Int, rangeFrom: String, rangeTo: String): Any? {
+    fun GetBulkCount(branch: Int, rangeFrom: String, rangeTo: String) {
 
         val METHOD_NAME = "GetBulkCount"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -774,12 +713,10 @@ class SoapClient//constructor
         request.addProperty("rangeTo", rangeTo)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun GetBulkReceptions(bulkId: Int, fromRows: Int): Any? {
+    fun GetBulkReceptions(bulkId: Int, fromRows: Int) {
 
         val METHOD_NAME = "GetBulkReceptions"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -791,12 +728,10 @@ class SoapClient//constructor
         request.addProperty("fromRows", fromRows)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun GetBulkStatus(bulkId: Int, sent: Int, failed: Int, status: Byte): Any? {
+    fun GetBulkStatus(bulkId: Int, sent: Int, failed: Int, status: Byte) {
 
         val METHOD_NAME = "GetBulkStatus"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -810,12 +745,10 @@ class SoapClient//constructor
         request.addProperty("status", status)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun GetTodaySent(): Any? {
+    fun GetTodaySent() {
 
         val METHOD_NAME = "GetTodaySent"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -825,12 +758,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun GetTotalSent(): Any? {
+    fun GetTotalSent() {
 
         val METHOD_NAME = "GetTotalSent"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -840,12 +771,10 @@ class SoapClient//constructor
         request.addProperty("password", Password)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun RemoveBulk(bulkId: Int): Any? {
+    fun RemoveBulk(bulkId: Int) {
 
         val METHOD_NAME = "RemoveBulk"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -856,13 +785,11 @@ class SoapClient//constructor
         request.addProperty("bulkId", bulkId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
     fun SendMultipleSMS(to: Array<String>, from: String, text: Array<String>, isflash: Boolean, udh: String,
-                        recIds: LongArray): Any? {
+                        recIds: LongArray) {
 
         val METHOD_NAME = "SendMultipleSMS"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -881,12 +808,10 @@ class SoapClient//constructor
         request.addProperty("recId", _recIds)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
-    fun UpdateBulkDelivery(bulkId: Int): Any? {
+    fun UpdateBulkDelivery(bulkId: Int) {
 
         val METHOD_NAME = "UpdateBulkDelivery"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -897,15 +822,13 @@ class SoapClient//constructor
         request.addProperty("bulkId", bulkId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request)
     }
 
 
     //schedule webservice
     fun AddSchedule(to: String, from: String, text: String, isFlash: Boolean, scheduleDateTime: Date,
-                    period: String): Any? {
+                    period: String) {
 
         val METHOD_NAME = "AddSchedule"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -921,12 +844,10 @@ class SoapClient//constructor
         request.addProperty("period", period)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
     }
 
-    fun AddMultipleSchedule(to: Array<String>, from: String, text: Array<String>, isFlash: Boolean, scheduleDateTime: Array<Date>, period: String): Any? {
+    fun AddMultipleSchedule(to: Array<String>, from: String, text: Array<String>, isFlash: Boolean, scheduleDateTime: Array<Date>, period: String) {
 
         val METHOD_NAME = "AddMultipleSchedule"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -945,13 +866,11 @@ class SoapClient//constructor
         request.addProperty("period", period)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
     }
 
     fun AddNewUsance(to: String, from: String, text: String, isFlash: Boolean, countrepeat: Int,
-                     scheduleEndDateTime: Date, periodType: String): Any? {
+                     scheduleEndDateTime: Date, periodType: String) {
 
         val METHOD_NAME = "AddNewUsance"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -968,12 +887,10 @@ class SoapClient//constructor
         request.addProperty("periodType", periodType)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
     }
 
-    fun GetScheduleStatus(scheduleId: Int): Any? {
+    fun GetScheduleStatus(scheduleId: Int) {
 
         val METHOD_NAME = "GetScheduleStatus"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -984,12 +901,10 @@ class SoapClient//constructor
         request.addProperty("scheduleId", scheduleId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
     }
 
-    fun RemoveSchedule(scheduleId: Int): Any? {
+    fun RemoveSchedule(scheduleId: Int) {
 
         val METHOD_NAME = "RemoveSchedule"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1000,14 +915,12 @@ class SoapClient//constructor
         request.addProperty("scheduleId", scheduleId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request)
     }
 
 
     //voice webservice
-    fun GetSendSMSWithSpeechTextStatus(recId: Long): Any? {
+    fun GetSendSMSWithSpeechTextStatus(recId: Long) {
 
         val METHOD_NAME = "GetSendSMSWithSpeechTextStatus"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1018,12 +931,10 @@ class SoapClient//constructor
         request.addProperty("recId", recId)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(VOICE_URL, SOAP_ACTION, request)
     }
 
-    fun SendBulkSpeechText(title: String, body: String, receivers: String, DateToSend: String, repeatCount: Int): Any? {
+    fun SendBulkSpeechText(title: String, body: String, receivers: String, DateToSend: String, repeatCount: Int) {
 
         val METHOD_NAME = "SendBulkSpeechText"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1038,12 +949,10 @@ class SoapClient//constructor
         request.addProperty("repeatCount", repeatCount)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(VOICE_URL, SOAP_ACTION, request)
     }
 
-    fun SendBulkVoiceSMS(title: String, voiceFileId: Int, receivers: String, DateToSend: String, repeatCount: Int): Any? {
+    fun SendBulkVoiceSMS(title: String, voiceFileId: Int, receivers: String, DateToSend: String, repeatCount: Int) {
 
         val METHOD_NAME = "SendBulkVoiceSMS"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1058,12 +967,10 @@ class SoapClient//constructor
         request.addProperty("repeatCount", repeatCount)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(VOICE_URL, SOAP_ACTION, request)
     }
 
-    fun SendSMSWithSpeechText(smsBody: String, speechBody: String, from: String, to: String): Any? {
+    fun SendSMSWithSpeechText(smsBody: String, speechBody: String, from: String, to: String) {
 
         val METHOD_NAME = "SendSMSWithSpeechText"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1077,13 +984,11 @@ class SoapClient//constructor
         request.addProperty("speechBody", speechBody)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(VOICE_URL, SOAP_ACTION, request)
     }
 
     fun SendSMSWithSpeechTextBySchduleDate(smsBody: String, speechBody: String, from: String, to: String,
-                                           scheduleDate: Date): Any? {
+                                           scheduleDate: Date) {
 
         val METHOD_NAME = "SendSMSWithSpeechTextBySchduleDate"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1098,12 +1003,10 @@ class SoapClient//constructor
         request.addProperty("scheduleDate", scheduleDate)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(VOICE_URL, SOAP_ACTION, request)
     }
 
-    fun UploadVoiceFile(title: String, base64StringFile: String): Any? {
+    fun UploadVoiceFile(title: String, base64StringFile: String) {
 
         val METHOD_NAME = "UploadVoiceFile"
         val request = SoapObject(NAMESPACE, METHOD_NAME)
@@ -1115,9 +1018,7 @@ class SoapClient//constructor
         request.addProperty("base64StringFile", base64StringFile)
 
         val SOAP_ACTION = NAMESPACE + METHOD_NAME
-        val response = getXMLResult(VOICE_URL, SOAP_ACTION, request)
-
-        return response?.getProperty(0)
+        getXMLResult(VOICE_URL, SOAP_ACTION, request)
     }
 
     companion object {
@@ -1132,57 +1033,9 @@ class SoapClient//constructor
         private val VOICE_URL = "http://api.payamak-panel.com/post/Voice.asmx"
 
         private val TAG = "melipayamak"
-
-
-        @Throws(XmlPullParserException::class, IOException::class)
-        private fun getServiceResult(strURL: String, strSoapAction: String, request: SoapObject): SoapObject? {
-
-
-            // Create envelope
-            //Declare the version of the SOAP request
-            val envelope = SoapSerializationEnvelope(SoapEnvelope.VER11)
-            envelope.dotNet = true
-
-            // Set output SOAP object
-            envelope.setOutputSoapObject(request)
-
-            // Create HTTP call object
-            val androidHttpTransport = HttpTransportSE(strURL)
-            androidHttpTransport.debug = true
-
-            val response: SoapObject?
-
-            // StringBuffer result = null;
-
-            System.setProperty("http.keepAlive", "false")
-
-            try {
-                // Invoke web service
-                androidHttpTransport.call(strSoapAction, envelope)
-
-                // Get the response
-                response = envelope.bodyIn as SoapObject
-                if (response != null)
-                    Log.d(TAG, response.toString())
-
-
-            } catch (e: SoapFault) {
-                Log.e(TAG, "SoapFaultException")
-                throw e
-            } catch (e: HttpResponseException) {
-                Log.e(TAG, "HttpResponseException")
-                throw e
-            } catch (e: XmlPullParserException) {
-                Log.e(TAG, "XmlPullParserException")
-                throw e
-            } catch (e: IOException) {
-                Log.e(TAG, "IOException")
-                throw e
-            }
-
-            return response
-        }
     }
 
-
 }
+
+
+class MPTaskParams(var url: String, var soapAction: String, var request: SoapObject)

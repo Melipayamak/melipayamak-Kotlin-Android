@@ -1,15 +1,19 @@
 package ir.mp.java.mpjava
 
+import android.os.AsyncTask
+
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
+import java.net.ProtocolException
 import java.net.URL
 import java.util.Enumeration
+import java.util.HashSet
 import java.util.Hashtable
 
-class RestClient(private val UserName: String, private val Password: String) {
+class RestClientAsync(private val UserName: String, private val Password: String) : AsyncTask<MPRestTaskParams, Int, String>() {
 
     private val endpoint = "https://rest.payamak-panel.com/api/SendSMS/"
 
@@ -21,21 +25,30 @@ class RestClient(private val UserName: String, private val Password: String) {
     private val getBasePriceOp = "GetBasePrice"
     private val getUserNumbersOp = "GetUserNumbers"
 
-    @Throws(IOException::class)
-    private fun makeRequest(url: URL, values: Hashtable<String, String>): String {
-        val conn = url.openConnection() as HttpURLConnection
-        conn.requestMethod = "POST"
+    override fun doInBackground(vararg params: MPRestTaskParams): String {
+        var conn: HttpURLConnection? = null
+        try {
+            conn = params[0].url.openConnection() as HttpURLConnection
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        try {
+            conn!!.requestMethod = "POST"
+        } catch (e: ProtocolException) {
+            e.printStackTrace()
+        }
 
         val result = StringBuilder()
         var line: String
 
         try {
-            conn.doOutput = true
+            conn!!.doOutput = true
             conn.setChunkedStreamingMode(0)
 
             //consider encoding
             val writer = OutputStreamWriter(conn.outputStream)
-            writer.write(getPostParamString(values))
+            writer.write(getPostParamString(params[0].values))
             writer.flush()
             writer.close()
 
@@ -46,8 +59,10 @@ class RestClient(private val UserName: String, private val Password: String) {
                 result.append(line).append('\n')
             }
 
+        } catch (e: IOException) {
+            e.printStackTrace()
         } finally {
-            conn.disconnect()
+            conn!!.disconnect()
         }
 
         return result.toString()
@@ -69,7 +84,7 @@ class RestClient(private val UserName: String, private val Password: String) {
 
 
     @Throws(IOException::class)
-    fun Send(to: String, from: String, message: String, isflash: Boolean): String {
+    fun Send(to: String, from: String, message: String, isflash: Boolean) {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
@@ -80,11 +95,11 @@ class RestClient(private val UserName: String, private val Password: String) {
         values["isFlash"] = isflash.toString()
 
         val url = URL(endpoint + sendOp)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
 
     @Throws(IOException::class)
-    fun SendByBaseNumber(text: String, to: String, bodyId: Long): String {
+    fun SendByBaseNumber(text: String, to: String, bodyId: Long) {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
@@ -94,11 +109,11 @@ class RestClient(private val UserName: String, private val Password: String) {
         values["bodyId"] = bodyId.toString()
 
         val url = URL(endpoint + sendByBaseNumber)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
 
     @Throws(IOException::class)
-    fun GetDelivery(recid: Long): String {
+    fun GetDelivery(recid: Long) {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
@@ -106,12 +121,12 @@ class RestClient(private val UserName: String, private val Password: String) {
         values["recID"] = recid.toString()
 
         val url = URL(endpoint + getDeliveryOp)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
 
 
     @Throws(IOException::class)
-    fun GetMessages(location: Int, from: String, index: String, count: Int): String {
+    fun GetMessages(location: Int, from: String, index: String, count: Int) {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
@@ -122,41 +137,44 @@ class RestClient(private val UserName: String, private val Password: String) {
         values["Count"] = count.toString()
 
         val url = URL(endpoint + getMessagesOp)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
 
     @Throws(IOException::class)
-    fun GetCredit(): String {
+    fun GetCredit() {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
         values["password"] = Password
 
         val url = URL(endpoint + getCreditOp)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
 
     @Throws(IOException::class)
-    fun GetBasePrice(): String {
+    fun GetBasePrice() {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
         values["password"] = Password
 
         val url = URL(endpoint + getBasePriceOp)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
 
     @Throws(IOException::class)
-    fun GetUserNumbers(): String {
+    fun GetUserNumbers() {
 
         val values = Hashtable<String, String>()
         values["username"] = UserName
         values["password"] = Password
 
         val url = URL(endpoint + getUserNumbersOp)
-        return makeRequest(url, values)
+        execute(*arrayOf(MPRestTaskParams(url, values)))
     }
+
 
 }
 
+
+class MPRestTaskParams(var url: URL, var values: Hashtable<String, String>)
